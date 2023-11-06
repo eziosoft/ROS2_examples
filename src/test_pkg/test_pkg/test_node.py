@@ -4,10 +4,10 @@ import rclpy
 from rclpy.node import Node
 
 
-class TestNode(Node):
+class TestNode(Node): # MODIFY NAME
 
     def __init__(self):
-        super().__init__('test_node')
+        super().__init__('test_node') # MODIFY NAME
         self.get_logger().info("Hello World!")
         self.create_timer(1.0, self.timer_callback)
         self.i = 0
@@ -19,7 +19,7 @@ class TestNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = TestNode()
+    node = TestNode() # MODIFY NAME
     rclpy.spin(node)
     rclpy.shutdown()
 
