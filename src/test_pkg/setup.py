@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             "test_node = test_pkg.test_node:main",
             "test_publisher = test_pkg.test_publisher:main",
+            "test_subscriber = test_pkg.test_subscriber:main",
         ],
     },
 )
