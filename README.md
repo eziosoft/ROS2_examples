@@ -59,6 +59,23 @@ ros2 node info [node_name]
 ```
 ros2 run [my_pkg] [my_node] --ros-args -remap __node:=[new_name]
 ```
+
+### Interfaces
+#### Get info about interface
+```
+ros2 interface show [name_of_interface]
+```
+
+### Topics
+#### List active topics
+```
+ros2 topic list
+```
+#### See messages
+```
+ros2 topic echo [/topic_name]
+```
+
 ### Building (Colcon)
 #### Build Workspace 
 ```
@@ -69,6 +86,7 @@ colcon build
 colcon build --packages-select [my_py_pkg]
 colcon build --packages-select [my_py_pkg] --symlink-install (after that you don't have to build the package before running everytime you make changes)
 ```
+
 
 ### Gui tools
 ```
