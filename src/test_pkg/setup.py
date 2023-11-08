@@ -23,6 +23,7 @@ setup(
             "test_node = test_pkg.test_node:main",
             "test_publisher = test_pkg.test_publisher:main",
             "test_subscriber = test_pkg.test_subscriber:main",
+            "test_service_server = test_pkg.test_service_server:main",
         ],
     },
 )

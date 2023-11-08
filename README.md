@@ -76,6 +76,15 @@ ros2 topic list
 ros2 topic echo [/topic_name]
 ```
 
+#### Publish message
+```
+ros2 ropic pub -r 10 /[topic] [message_type] "{data:dasdasd}"
+```
+#### Remap topic
+```
+ros2 run [package] [node] --ros-args -r [old_topic]:=[new_topic]
+```
+
 ### Building (Colcon)
 #### Build Workspace 
 ```
