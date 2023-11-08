@@ -24,6 +24,7 @@ setup(
             "test_publisher = test_pkg.test_publisher:main",
             "test_subscriber = test_pkg.test_subscriber:main",
             "test_service_server = test_pkg.test_service_server:main",
+            "test_service_client = test_pkg.test_service_client:main"
         ],
     },
 )
