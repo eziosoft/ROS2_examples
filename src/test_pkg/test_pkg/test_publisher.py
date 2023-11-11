@@ -11,8 +11,11 @@ class TestPublisher(Node):  # MODIFY NAME
 
     def __init__(self):
         super().__init__('test_publisher')  # MODIFY NAME
+        self.declare_parameter(name='start_number', value=0)
+
+
         self.create_timer(1.0, self.publish_test)
-        self.i = 0
+        self.i = self.get_parameter('start_number').value
 
         self.publisher = self.create_publisher(String, 'test_topic', 10) # (msg type, topic name, queue size)
 

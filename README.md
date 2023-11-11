@@ -109,3 +109,10 @@ rqt_graph - get graph of running nodes
 ros2 launch [pkg] [my_launch_file.launch.py]
 ```
 
+# Parameters
+```
+ros2 param list
+ros2 param get [/node] [parameter]
+ros2 run [pkg] [node_name] --ros-args -p [param_name]:=1000
+
+```
