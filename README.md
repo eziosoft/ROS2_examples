@@ -103,3 +103,9 @@ rqt - get info about nodes
 rqt_graph - get graph of running nodes
 ```
 
+# Launch file
+## Run
+```
+ros2 launch [pkg] [my_launch_file.launch.py]
+```
+
