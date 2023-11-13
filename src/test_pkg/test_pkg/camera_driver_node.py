@@ -12,6 +12,7 @@ class CameraDriverNode(Node):
         self.publisher = self.create_publisher(Image, 'camera/image_raw', 10)
         self.bridge = CvBridge()
         self.cap = None
+        self.stream_connected = False  # Flag to indicate stream connection status
         self.get_logger().info('Camera driver node has been started.')
         self.start_publishing()
 
@@ -22,16 +23,21 @@ class CameraDriverNode(Node):
                 while self.cap.isOpened():
                     ret, frame = self.cap.read()
                     if ret:
+                        if not self.stream_connected:
+                            self.get_logger().info('Stream connection restored.')
+                            self.stream_connected = True  # Update the flag
                         # Convert OpenCV image to ROS Image message
                         ros_image = self.bridge.cv2_to_imgmsg(frame, 'bgr8')
                         self.publisher.publish(ros_image)
                     else:
                         self.get_logger().error('Error reading frame from camera.')
                         time.sleep(5)
+                        self.stream_connected = False  # Update the flag
                         break  # Break out of the inner loop to retry connection
             except Exception as e:
                 self.get_logger().error(f'Error: {str(e)}')
                 time.sleep(5)
+                self.stream_connected = False  # Update the flag
             finally:
                 if self.cap is not None:
                     self.cap.release()
