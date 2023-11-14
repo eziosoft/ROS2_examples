@@ -25,8 +25,6 @@ class LidarNode(Node):  # MODIFY NAME
 
         self.lidar.start_listening()
 
-        # self.create_timer(0.2, self.publish_emulated_scan)
-
     def on_data(self, lidarOutput: LidarOutput):
         msg = LaserScan()
         msg.header.frame_id = "laser"
@@ -43,26 +41,6 @@ class LidarNode(Node):  # MODIFY NAME
 
         self.scan_publisher.publish(msg)
         self.get_logger().info("Scan published.")
-
-    # def publish_emulated_scan(self):
-    #     circle_ranges = []
-    #     for i in range(0, 63):
-    #         circle_ranges.append(2.0 + random.random() / 10.0)
-
-    #     msg = LaserScan()
-    #     msg.header.frame_id = "laser"
-    #     msg.header.stamp = self.get_clock().now().to_msg()
-    #     msg.angle_min = 0.0
-    #     msg.angle_max = 6.28
-    #     msg.angle_increment = 0.1
-    #     msg.time_increment = 0.001
-    #     msg.scan_time = 0.05
-    #     msg.range_min = 0.0
-    #     msg.range_max = 10.0
-    #     msg.ranges = circle_ranges
-
-    #     self.scan_publisher.publish(msg)
-    #     self.get_logger().info("Scan published.")
 
 
 def main(args=None):
