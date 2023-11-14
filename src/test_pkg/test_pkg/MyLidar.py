@@ -1,4 +1,5 @@
 import socket
+import sys
 import time
 
 
@@ -11,125 +12,159 @@ class LidarOutput:
         self.nSamples = 0
         self.distances = []
         self.angles = []
+        self.sampleId = []
         self.error = False
         self.errorMsg = ""
 
 
-class MyLidar:
-
-    def __init__(self):
-        self.IP = 'Lidar'
-        self.port=23
+class LidarClient:
+    def __init__(self, ip, port, callback=None):
+        self.IP = ip
+        self.port = port
+        self.last_angle = 0
+        self.frame = ''
         self.socket = None
-        self.data_available_callback = None
+        self.callback = callback
 
-    def connect(self):
+    def create_socket(self):
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print("Socket successfully created")
+        except socket.error as err:
+            print("Socket creation failed with error %s" % (err))
+            sys.exit()
+
+    def resolve_host(self):
+        try:
             host_ip = socket.gethostbyname(self.IP)
-            self.socket.connect((host_ip, self.port))
-            self.socket.settimeout(1)
-            return True
-        except:
-            return False
-        
-    def disconnect(self):
-        self.socket.close()
+        except socket.gaierror:
+            print("There was an error resolving the host")
+            sys.exit()
+        return host_ip
 
-    def start_parse(self):
-        while True:
-            try:
-                data = self.socket.recv(1024)
-                if self.data_available_callback is not None:
-                    self.data_available_callback(data)
-            except:
-                pass
+    def connect_to_server(self):
+        self.create_socket()
+        host_ip = self.resolve_host()
+        self.socket.connect((host_ip, self.port))
+        print("The socket has successfully connected")
 
+    def out(self, lidarOutput: LidarOutput):
+        if self.callback is not None:
+            self.callback(lidarOutput)
 
     def checksum(self, frame):
         cs = int.from_bytes(frame[-2:], byteorder='big', signed=False)
-        result = 0
-
-        for i in frame[0:-2]:
-            result += int(i)
-
+        result = sum(frame[:-2])
         return result == cs
 
-    def parseData(self, payload, payloadLen):
-        out = LidarOutput()
+    def parse_data(self, payload, payload_len):
+        measurements = []
+        angles = []
+        sample_ids = []
 
-        speed = payload[0]
-        out.speed = speed * 0.05  # r/s
-        # print ('RPM: %.2fr/s or %drpm'%(speed, speed*60))
+        speed = payload[0] * 0.05
+        ang_offset = int.from_bytes(
+            payload[1:3], byteorder='big', signed=True) * 0.01
+        ang_start = int.from_bytes(
+            payload[3:5], byteorder='big', signed=False) * 0.01
+        n_samples = int((payload_len - 5) / 3)
 
-        angOffset = int.from_bytes(payload[1:3], byteorder='big', signed=True)
-        out.angOffset = angOffset * 0.01
-        # print ('Angle Offset: %.2f'%angOffset)
+        # print('start: %.2f, offset: %.2f, samples: %d,  speed: %.2fr/s or %drpm' % (
+        #     ang_start, ang_offset, n_samples, speed, speed * 60))
 
-        angStart = int.from_bytes(payload[3:5], byteorder='big', signed=False)
-        out.angStart = angStart * 0.01
-        # print ('Starting Angle: %.2f'%angStart)
-
-        out.nSamples = int((payloadLen - 5) / 3)
-        # print("N Samples: %d"%nSamples)
-
-        for i in range(out.nSamples):
+        for i in range(n_samples):
             index = 5 + i * 3
-            sampleID = payload[index]
-            distance = int.from_bytes(
+            sample_id = payload[index]
+            ang = ang_start + 22.5 * i / n_samples
+            dist = int.from_bytes(
                 payload[index + 1:index + 3], byteorder='big', signed=False)
-            out.distances.append(distance)
-            ang = angStart + 22.5 * i / out.nSamples
-            out.angles.append(ang)
-            print('%.2f: %.2f mm' % (ang, distance))
 
-        out.timeStamp = time.time()
-        out.error = False
-        return out
+            measurements.append(dist/1000.0)
+            angles.append(ang)
+            sample_ids.append(sample_id)
 
-    def parseError(self, payload):
-        out = LidarOutput()
-        speed = payload[0]
-        out.speed = speed * 0.05  # r/s
-        print('Error: Low RPM - %.2fr/s or %drpm' % (speed, speed * 60))
-        out.error = True
-        out.errorMsg = 'Low RPM - %.2fr/s or %drpm' % (speed, speed * 60)
-        return out
+        lidarOut = LidarOutput()
+        lidarOut.timeStamp = time.time()
+        lidarOut.speed = speed
+        lidarOut.angOffset = ang_offset
+        lidarOut.angStart = ang_start
+        lidarOut.nSamples = n_samples
+        lidarOut.distances = measurements
+        lidarOut.angles = angles
+        lidarOut.sampleId = sample_ids
+        lidarOut.error = False
+        lidarOut.errorMsg = ""
 
-    def processFrame(self, frame):
-        out: LidarOutput = None
+        self.out(lidarOut)
+        measurements.clear()
+        angles.clear()
 
+    def parse_error(self, payload):
+        speed = payload[0] * 0.05
+        # print('Error: Low RPM - %.2fr/s or %drpm' % (speed, speed * 60))
+        lidar_out = LidarOutput()
+        lidar_out.error = True
+        lidar_out.errorMsg = 'Error: Low RPM - %.2fr/s or %drpm' % (
+            speed, speed * 60)
+        self.out(lidar_out)
+
+    def process_frame(self, frame):
         if len(frame) < 3:
             return False
-        frameLen = int.from_bytes(frame[1:3], byteorder='big', signed=False)
-        if len(frame) < frameLen + 2:
-            return False  # include 2bytes checksum
+        frame_len = int.from_bytes(frame[1:3], byteorder='big', signed=False)
+        if len(frame) < frame_len + 2:
+            return False
 
         if not self.checksum(frame):
-            return True  # checksum failed
+            return True
 
         try:
-            protocalVer = frame[3]  # 0x00
-            frameType = frame[4]  # 0x61
-            payloadType = frame[5]  # 0xAE or 0XAD
-            payloadLen = int.from_bytes(
+            protocol_ver = frame[3]
+            frame_type = frame[4]
+            payload_type = frame[5]
+            payload_len = int.from_bytes(
                 frame[6:8], byteorder='big', signed=False)
 
-            if payloadType == 0xAD:
-                out = self.parseData(frame[8:frameLen + 1], payloadLen)
-            elif payloadType == 0xAE:
-                out = self.parseError(frame[8:frameLen + 1])
-        except:
-            pass
-        return out
+            if payload_type == 0xAD:
+                self.parse_data(frame[8:frame_len + 1], payload_len)
+            elif payload_type == 0xAE:
+                self.parse_error(frame[8:frame_len + 1])
+        except Exception as e:
+            print(f"Error processing frame: {e}")
+        return True
+
+    def on_data(self, data):
+        if data == b'\xaa' and len(self.frame) == 0:
+            self.frame = data
+        elif len(self.frame) > 0:
+            self.frame += data
+            if self.process_frame(self.frame):
+                self.frame = ''
+
+    def start_listening(self):
+        while True:
+            self.on_data(self.socket.recv(1))
 
 
-def data_available_callback(data):
-    print(data)
+def lidar_callback(lidarOutput: LidarOutput):
+    print(f"Time: {lidarOutput.timeStamp}")
+    print(f"Speed: {lidarOutput.speed}")
+    print(f"Angle Offset: {lidarOutput.angOffset}")
+    print(f"Angle Start: {lidarOutput.angStart}")
+    print(f"Number of Samples: {lidarOutput.nSamples}")
+    print(f"Distances: {lidarOutput.distances}")
+    print(f"Angles: {lidarOutput.angles}")
+    print(f"Sample IDs: {lidarOutput.sampleId}")
+    print(f"Error: {lidarOutput.error}")
+    print(f"Error Message: {lidarOutput.errorMsg}")
+    print("")
 
-if __name__ == '__main__':
-    lidar = MyLidar()
-    lidar.data_available_callback = data_available_callback
 
-    lidar.connect()
-    lidar.start_parse()
+if __name__ == "__main__":
+    IP = '192.168.8.200'
+    PORT = 23
+
+    lidar_client = LidarClient(IP, PORT, callback=lidar_callback)
+
+    lidar_client.connect_to_server()
+    lidar_client.start_listening()
