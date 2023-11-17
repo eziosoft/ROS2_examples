@@ -15,8 +15,8 @@ class LidarNode(Node):  # MODIFY NAME
     def __init__(self):
         super().__init__('lidar_node')  # MODIFY NAME
 
-        IP = '192.168.8.200'
-        PORT = 23
+        IP = '127.0.0.1'
+        PORT = 2325
         self.lidar = LidarClient(IP, PORT, callback=self.on_data)
         self.lidar.connect_to_server()
 
@@ -26,6 +26,11 @@ class LidarNode(Node):  # MODIFY NAME
         self.lidar.start_listening()
 
     def on_data(self, lidarOutput: LidarOutput):
+
+        if lidarOutput.error:
+            self.get_logger().error(lidarOutput.errorMsg)
+            return
+        
         msg = LaserScan()
         msg.header.frame_id = "laser"
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -33,14 +38,15 @@ class LidarNode(Node):  # MODIFY NAME
         msg.angle_max = math.radians(lidarOutput.angStart +
                                      lidarOutput.nSamples * lidarOutput.angOffset)
         msg.angle_increment = math.radians(lidarOutput.angOffset)
-        msg.time_increment = 1000.0 / lidarOutput.speed / lidarOutput.nSamples
-        msg.scan_time = 1000.0 / lidarOutput.speed
-        msg.range_min = 0.0
-        msg.range_max = 10.0
+        number_of_frames_per_revolution = 360 / 22.5
+        msg.time_increment = 1000.0 / lidarOutput.speed_rev_s / lidarOutput.nSamples * number_of_frames_per_revolution
+        msg.scan_time = 1000.0 / lidarOutput.speed_rev_s / number_of_frames_per_revolution
+        msg.range_min = 0.1
+        msg.range_max = 8.0
         msg.ranges = lidarOutput.distances
 
         self.scan_publisher.publish(msg)
-        self.get_logger().info("Scan published.")
+        
 
 
 def main(args=None):

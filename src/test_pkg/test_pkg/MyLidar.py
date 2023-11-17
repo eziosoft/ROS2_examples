@@ -6,7 +6,7 @@ import time
 class LidarOutput:
     def __init__(self):
         self.timeStamp = 0
-        self.speed = 0
+        self.speed_rev_s = 0
         self.angOffset = 0
         self.angStart = 0
         self.nSamples = 0
@@ -45,6 +45,8 @@ class LidarClient:
     def connect_to_server(self):
         self.create_socket()
         host_ip = self.resolve_host()
+        print("Connecting to %s (%s) on port %s" %
+              (self.IP, host_ip, self.port))
         self.socket.connect((host_ip, self.port))
         print("The socket has successfully connected")
 
@@ -62,7 +64,7 @@ class LidarClient:
         angles = []
         sample_ids = []
 
-        speed = payload[0] * 0.05
+        speed_r_s = payload[0] * 0.05
         ang_offset = int.from_bytes(
             payload[1:3], byteorder='big', signed=True) * 0.01
         ang_start = int.from_bytes(
@@ -77,7 +79,7 @@ class LidarClient:
             sample_id = payload[index]
             ang = ang_start + 22.5 * i / n_samples
             dist = int.from_bytes(
-                payload[index + 1:index + 3], byteorder='big', signed=False)
+                payload[index + 1:index + 3], byteorder='big', signed=False) * 0.25
 
             measurements.append(dist/1000.0)
             angles.append(ang)
@@ -85,8 +87,9 @@ class LidarClient:
 
         lidarOut = LidarOutput()
         lidarOut.timeStamp = time.time()
-        lidarOut.speed = speed
-        lidarOut.angOffset = ang_offset
+        lidarOut.speed_rev_s = speed_r_s
+        lidarOut.angOffset = self.calculate_average_distance_between_elenents(
+            angles)
         lidarOut.angStart = ang_start
         lidarOut.nSamples = n_samples
         lidarOut.distances = measurements
@@ -143,12 +146,29 @@ class LidarClient:
 
     def start_listening(self):
         while True:
-            self.on_data(self.socket.recv(1))
+            try:
+                self.on_data(self.socket.recv(1))
+            except (socket.error, ConnectionResetError):
+                print("Connection lost. Reconnecting...")
+                lidarOut = LidarOutput()
+                lidarOut.error = True
+                lidarOut.errorMsg = "Connection lost. Reconnecting..."
+                self.out(lidarOut)
+
+                self.socket.close()
+                time.sleep(2)  # You can adjust the sleep duration as needed
+                self.connect_to_server()
+
+    def calculate_average_distance_between_elenents(self, arr):
+        sum = 0
+        for i in range(1, len(arr)):
+            sum += arr[i] - arr[i - 1]
+        return sum / (len(arr) - 1)
 
 
 def lidar_callback(lidarOutput: LidarOutput):
     print(f"Time: {lidarOutput.timeStamp}")
-    print(f"Speed: {lidarOutput.speed}")
+    print(f"Speed: {lidarOutput.speed_rev_s}")
     print(f"Angle Offset: {lidarOutput.angOffset}")
     print(f"Angle Start: {lidarOutput.angStart}")
     print(f"Number of Samples: {lidarOutput.nSamples}")
@@ -161,8 +181,12 @@ def lidar_callback(lidarOutput: LidarOutput):
 
 
 if __name__ == "__main__":
-    IP = '192.168.8.200'
-    PORT = 23
+    # IP = '192.168.8.200'
+    IP = '127.0.0.1'
+    # PORT = 23
+    PORT = 2323
+
+    print("Starting Lidar Client...")
 
     lidar_client = LidarClient(IP, PORT, callback=lidar_callback)
 

@@ -1,0 +1,2 @@
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 1map map
+ros2 run tf2_ros static_transform_publisher 1 0 0 0 0 0 1map laser
