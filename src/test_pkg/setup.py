@@ -27,7 +27,8 @@ setup(
             "test_service_client = test_pkg.test_service_client:main",
             "test_status_publisher = test_pkg.test_status_publisher:main",
             "camera_driver = test_pkg.camera_driver_node:main",
-            "lidar_driver = test_pkg.lidar_driver_node:main"
+            "lidar_driver = test_pkg.lidar_driver_node:main",
+            "lidar_driver1 = test_pkg.lidar_driver_node1:main",
         ],
     },
 )
