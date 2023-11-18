@@ -21,7 +21,11 @@ class LidarNode(Node):  # MODIFY NAME
 
         IP = '127.0.0.1'
         PORT = 2325
-
+        self.declare_parameter("ip", IP)
+        self.declare_parameter("port", PORT)
+        IP = self.get_parameter("ip").value
+        PORT = self.get_parameter("port").value
+        
         self.mesurements = []
         self.angles = []
         self.last_angle = 0
