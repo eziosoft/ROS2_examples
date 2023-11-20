@@ -19,8 +19,8 @@ class LidarNode(Node):  # MODIFY NAME
     def __init__(self):
         super().__init__('lidar_node1')  # MODIFY NAME
 
-        IP = '127.0.0.1'
-        PORT = 2325
+        IP = '192.168.0.115'
+        PORT = 23
         self.declare_parameter("ip", IP)
         self.declare_parameter("port", PORT)
         IP = self.get_parameter("ip").value
@@ -82,6 +82,7 @@ class LidarNode(Node):  # MODIFY NAME
         msg.range_min = 0.1
         msg.range_max = 8.0
         msg.ranges = ranges
+        msg.intensities = [0.0] * len(ranges)
 
         self.scan_publisher.publish(msg)
         

@@ -19,8 +19,8 @@ class LidarNode(Node):  # MODIFY NAME
     def __init__(self):
         super().__init__('lidar_node')  # MODIFY NAME
 
-        IP = '127.0.0.1'
-        PORT = 2325
+        IP = '192.168.0.115'
+        PORT = 23
         self.lidar = LidarClient(IP, PORT, callback=self.on_data)
         self.lidar.connect_to_server()
 

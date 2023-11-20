@@ -44,8 +44,8 @@ def start_server_slow(host, port, file_path):
 
 if __name__ == "__main__":
     # Replace 'your_file_path' with the path to your binary file
-    file_path = 'lidar.txt'
+    file_path = 'lidar_home.txt'
     host = '127.0.0.1'  # Use '0.0.0.0' to listen on all available interfaces
-    port = 2325  # Choose a suitable port number
+    port = 2326  # Choose a suitable port number
 
     start_server_slow(host, port, file_path)
