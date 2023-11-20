@@ -19,8 +19,8 @@ class LidarNode(Node):  # MODIFY NAME
     def __init__(self):
         super().__init__('lidar_node1')  # MODIFY NAME
 
-        IP = '192.168.0.115'
-        PORT = 23
+        IP = '127.0.0.1'
+        PORT = 2327
         self.declare_parameter("ip", IP)
         self.declare_parameter("port", PORT)
         IP = self.get_parameter("ip").value
@@ -69,7 +69,7 @@ class LidarNode(Node):  # MODIFY NAME
     
     def publish(self, angle_min, angle_max, angle_increment, ranges, scan_time, time_increment):
         msg = LaserScan()
-        msg.header.frame_id = "laser"
+        msg.header.frame_id = "base_scan"
         time = self.get_clock().now()
         msg.header.stamp = time.to_msg() 
         msg.angle_min = math.radians(angle_min)
