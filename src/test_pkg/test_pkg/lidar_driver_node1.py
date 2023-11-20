@@ -58,7 +58,7 @@ class LidarNode(Node):  # MODIFY NAME
                 self.publish(angle_min=self.angles[0],
                              angle_max=self.angles[-1],
                              angle_increment=self.angles[1]-self.angles[0],
-                             ranges=self.mesurements,
+                             ranges=self.mesurements[::-1],
                              scan_time=scan_time,
                              time_increment=time_increment)
                 self.mesurements = []
