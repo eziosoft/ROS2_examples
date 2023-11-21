@@ -30,6 +30,7 @@ setup(
             "lidar_driver = test_pkg.lidar_driver_node:main",
             "lidar_driver1 = test_pkg.lidar_driver_node1:main",
             "lidar_emulator = test_pkg.lidar_emulator_node:main",
+            "drive_node = test_pkg.drive_node:main",
         ],
     },
 )
