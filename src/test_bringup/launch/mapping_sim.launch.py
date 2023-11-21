@@ -54,4 +54,11 @@ def generate_launch_description():
             name='occupancy_node',
 
         ),
+
+        Node(
+            package='test_pkg',
+            executable='drive_node',
+            name='drive_node',
+            output='screen',
+        )
     ])
