@@ -30,7 +30,7 @@ class DriveNode(Node):  # MODIFY NAME
         self.get_logger().info("Drive Node has been started.")
 
     def stop_roomba(self):
-        self.mqtt_control.sendControl(0, 0, self.mqtt_control.COMMAND_STOP)
+        self.mqtt_control.disable_roomba()
         self.get_logger().info("Roomba has been stopped.")
         time.sleep(1)
 
