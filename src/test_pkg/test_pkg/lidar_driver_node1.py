@@ -19,10 +19,8 @@ class LidarNode(Node):  # MODIFY NAME
     def __init__(self):
         super().__init__('lidar_node1')  # MODIFY NAME
 
-        IP = '127.0.0.1'
-        PORT = 2327
-        self.declare_parameter("ip", IP)
-        self.declare_parameter("port", PORT)
+        self.declare_parameter("ip", '127.0.0.1')
+        self.declare_parameter("port", 2327)
         IP = self.get_parameter("ip").value
         PORT = self.get_parameter("port").value
         
