@@ -11,14 +11,14 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='robot_transform_publisher',
-            output='screen',
-            arguments=['0.0', '0.0', '0.2', '0.0',
-                       '0.0', '0.0', 'base_link', 'base_scan'],
-        ),
+        # Node(
+        #     package='tf2_ros',
+        #     executable='static_transform_publisher',
+        #     name='robot_transform_publisher',
+        #     output='screen',
+        #     arguments=['0.0', '0.0', '0.2', '0.0',
+        #                '0.0', '0.0', 'base_link', 'base_scan'],
+        # ),
 
 
         Node(
