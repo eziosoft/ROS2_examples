@@ -20,10 +20,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "camera_driver = test_pkg.camera_driver_node:main",
-            "lidar_driver = test_pkg.lidar_driver_node:main",
-            "lidar_emulator = test_pkg.lidar_emulator_node:main",
-            "drive_node = test_pkg.drive_node:main",
+            "camera_driver = my_robot1.camera_driver_node:main",
+            "lidar_driver = my_robot1.lidar_driver_node:main",
+            "lidar_emulator = my_robot1.lidar_emulator_node:main",
+            "drive_node = my_robot1.drive_node:main",
         ],
     },
 )
