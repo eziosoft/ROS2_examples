@@ -12,7 +12,6 @@ from my_robot1.lidar_client import LidarClient, LidarOutput
 from sensor_msgs.msg import LaserScan
 
 
-
 class LidarNode(Node):  # MODIFY NAME
     TOPIC_NAME = 'scan'
 
@@ -23,7 +22,7 @@ class LidarNode(Node):  # MODIFY NAME
         self.declare_parameter("port", 2323)
         IP = self.get_parameter("ip").value
         PORT = self.get_parameter("port").value
-        
+
         self.mesurements = []
         self.angles = []
         self.last_angle = 0
@@ -32,7 +31,8 @@ class LidarNode(Node):  # MODIFY NAME
         self.lidar = LidarClient(IP, PORT, callback=self.on_data)
         self.lidar.connect_to_server()
 
-        self.scan_publisher = self.create_publisher(LaserScan, self.TOPIC_NAME, 10)
+        self.scan_publisher = self.create_publisher(
+            LaserScan, self.TOPIC_NAME, 10)
         self.get_logger().info("Lidar Node has been started.")
         self.get_logger().info(f"Publishing to {self.TOPIC_NAME} topic.")
 
@@ -43,13 +43,10 @@ class LidarNode(Node):  # MODIFY NAME
         if lidarOutput.error:
             self.get_logger().error(lidarOutput.errorMsg)
             return
-        
+
         for i in range(len(lidarOutput.distances)):
-            if lidarOutput.angles[i]>self.last_angle:
-                self.mesurements.append(lidarOutput.distances[i])
-                self.angles.append(lidarOutput.angles[i])
-                self.last_angle = lidarOutput.angles[i]
-            else:
+            if lidarOutput.angles[i] < self.last_angle and lidarOutput.angles[i] in range(0, 22):
+
                 time = self.get_clock().now()
                 scan_time = 1/lidarOutput.speed_rev_s
                 time_increment = scan_time/len(self.mesurements)
@@ -62,18 +59,20 @@ class LidarNode(Node):  # MODIFY NAME
                 self.mesurements = []
                 self.angles = []
                 self.last_angle = lidarOutput.angles[i]
+            else:
+                self.mesurements.append(lidarOutput.distances[i])
+                self.angles.append(lidarOutput.angles[i])
+                self.last_angle = lidarOutput.angles[i]
 
-        
-    
     def publish(self, angle_min, angle_max, angle_increment, ranges, scan_time, time_increment):
         msg = LaserScan()
         msg.header.frame_id = "base_scan"
         time = self.get_clock().now()
-        msg.header.stamp = time.to_msg() 
+        msg.header.stamp = time.to_msg()
         msg.angle_min = math.radians(angle_min)
         msg.angle_max = math.radians(angle_max)
         msg.angle_increment = math.radians(angle_increment)
-        
+
         number_of_frames_per_revolution = 360 / 22.5
         msg.time_increment = time_increment
         msg.scan_time = scan_time
@@ -83,7 +82,6 @@ class LidarNode(Node):  # MODIFY NAME
         msg.intensities = [0.0] * len(ranges)
 
         self.scan_publisher.publish(msg)
-        
 
 
 def main(args=None):
