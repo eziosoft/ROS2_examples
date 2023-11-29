@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<robot name="my_robot">
+
+    <material name="blue">
+        <color rgba="0 0 0.5 0.5" />
+    </material>
+
+    <material name="grey">
+        <color rgba="0.5 0.5 0.5 1" />
+    </material>
+
+    <material name="red">
+        <color rgba="1 0 0 0.6" />
+    </material>
+
+    <link name="base_footprint" />
+
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.1742" length="0.08294" />
+            </geometry>
+            <origin xyz="0 0 0.01" rpy="0 0 0" />
+            <material name="blue" />
+        </visual>
+    </link>
+
+    <link name="base_scan">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.05" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="red" />
+        </visual>
+    </link>
+
+    <link name="right_wheel_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.036" length="0.01" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="1.57 0 0" />
+            <material name="grey" />
+        </visual>
+    </link>
+
+    <link name="left_wheel_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.036" length="0.01" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="1.57 0 0" />
+            <material name="grey" />
+        </visual>
+    </link>
+
+    <link name="caster_wheel_front_link">
+        <visual>
+            <geometry>
+                <sphere radius="0.005" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+    </link>
+
+    <link name="caster_wheel_back_link">
+        <visual>
+            <geometry>
+                <sphere radius="0.005" />
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+    </link>
+
+    <joint name="base_joint" type="fixed">
+        <parent link="base_footprint" />
+        <child link="base_link" />
+        <origin xyz="0 0 0.036" rpy="0 0 0" />
+    </joint>
+
+    <joint name="base_right_wheel_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="right_wheel_link" />
+        <origin xyz="0 -0.1175 0" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+    </joint>
+
+    <joint name="base_left_wheel_joint" type="continuous">
+        <parent link="base_link" />
+        <child link="left_wheel_link" />
+        <origin xyz="0 0.1175 0" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+    </joint>
+
+    <joint name="base_caster_wheel_front_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="caster_wheel_front_link" />
+        <origin xyz="0.17 0 -0.030" rpy="0 0 0" />
+    </joint>
+
+    <joint name="base_caster_wheel_back_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="caster_wheel_back_link" />
+        <origin xyz="-0.17 0 -0.030" rpy="0 0 0" />
+    </joint>
+
+
+    <joint name="base_scan_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="base_scan" />
+        <origin xyz="0 0 0.08" rpy="0 0 0" />
+    </joint>
+
+</robot>
