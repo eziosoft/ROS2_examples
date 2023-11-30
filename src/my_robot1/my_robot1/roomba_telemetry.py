@@ -1,6 +1,6 @@
 import struct
 import time
-from create2_enums import *
+from my_robot1.create2_enums import *
 import paho.mqtt.client as mqtt
 
 
@@ -212,6 +212,9 @@ class OdonometryDriver:
 
 if __name__ == "__main__":
     odometry = OdonometryDriver("192.168.0.102", 1883)
+    left = 0
+    right = 0
+    
     while True:
         state = odometry.get_state()
         if (

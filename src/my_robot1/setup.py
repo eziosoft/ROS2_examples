@@ -24,6 +24,7 @@ setup(
             "lidar_driver = my_robot1.lidar_driver_node:main",
             "lidar_emulator = my_robot1.lidar_emulator_node:main",
             "drive_node = my_robot1.drive_node:main",
+            "roomba_telemetry_node = my_robot1.roomba_telemetry_node:main",
         ],
     },
 )

@@ -2,6 +2,7 @@
 Helper enumerations which are both used for simulation and driver.
 """
 from enum import Enum
+import math
 
 
 # noinspection PyClassHasNoInit
@@ -130,8 +131,10 @@ class State:
 # noinspection PyClassHasNoInit
 class Specs:
     CountsPerRev = 508.8
-    WheelDiameterInMM = 72.0
-    WheelDistanceInMM = 235.0
+    WheelDiameterInM = 72.0/1000.0
+    WheelDistanceInM = 235.0/1000.0
+    WheelCircumferenceM = math.pi * WheelDiameterInM
+    TicksPerMeter = 1.0/WheelCircumferenceM * CountsPerRev
 
 
 class InfraredCharacter(Enum):
