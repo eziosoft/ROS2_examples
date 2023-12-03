@@ -30,25 +30,8 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         ### parameters #######
-        self.rate_hz = self.declare_parameter("rate_hz", 10.0).value # the rate at which to publish the transform
+        self.rate_hz = self.declare_parameter("rate_hz", 5.0).value # the rate at which to publish the transform
         self.create_timer(1.0/self.rate_hz, self.update)
 
         self.ticks_meter = float(
@@ -56,7 +39,7 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.base_width = float(self.declare_parameter('base_width', Specs.WheelDistanceInM).value)  # The wheel base width in meters
 
         self.base_frame_id = self.declare_parameter('base_frame_id',
-                                                    'base_link').value  # the name of the base frame of the robot
+                                                    'base_footprint').value  # the name of the base frame of the robot
         self.odom_frame_id = self.declare_parameter('odom_frame_id',
                                                     'odom').value  # the name of the odometry reference frame
 
