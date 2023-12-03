@@ -9,7 +9,7 @@
         value="$(find-pkg-share my_robot1_bringup)/config" />
 
     <let name="cartographer_config_basename"
-        value="slam_2d.lua" />
+        value="slam_2d_sim.lua" />
 
 
     <node pkg="robot_state_publisher" exec="robot_state_publisher">
@@ -17,6 +17,7 @@
             value="$(command 'xacro $(var urdf_path)')" />
     </node>
 
+    <!-- <node pkg="my_robot1" exec="roomba_telemetry_node" name="roomba_telemetry_node" output="screen" /> -->
     <node pkg="my_robot1" exec="lidar_emulator" name="lidar_emulator_node" output="screen" />
     <node pkg="my_robot1" exec="lidar_driver" name="lidar_driver_node" output="screen"
         args="--ros-args -p ip:=127.0.0.1 -p port:=2323" />
