@@ -12,7 +12,9 @@ class DriveNode(Node):  # MODIFY NAME
 
     def __init__(self):
         super().__init__('drive_node')  # MODIFY NAME
-        self.MQTT_BROKER_HOST = '192.168.0.19'
+
+        self.MQTT_BROKER_HOST = self.declare_parameter(
+            'mqtt_broker_host', '192.168.0.102').value
         self.MQTT_BROKER_PORT = 1883
 
         self.mqtt_control = MqttControl(
@@ -27,7 +29,8 @@ class DriveNode(Node):  # MODIFY NAME
 
         time.sleep(1)
         self.mqtt_control.enable_roomba()
-        self.get_logger().info("Drive Node has been started.")
+        self.get_logger().info(
+            f"Drive Node has been started. Connected to MQTT Broker {self.MQTT_BROKER_HOST}. ")
 
     def stop_roomba(self):
         self.mqtt_control.disable_roomba()
@@ -38,8 +41,8 @@ class DriveNode(Node):  # MODIFY NAME
         self.get_logger().info("I heard: [%s]" % msg.linear.x)
         self.get_logger().info("I heard: [%s]" % msg.angular.z)
 
-        x = int(msg.linear.x + 100)
-        z = int(msg.angular.z + 100)
+        x = int(msg.linear.x * 100 + 100)
+        z = int(msg.angular.z * 20 + 100)
 
         if x > 200:
             x = 200
