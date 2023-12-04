@@ -31,15 +31,18 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
 
 
         ### parameters #######
-        self.rate_hz = self.declare_parameter("rate_hz", 5.0).value # the rate at which to publish the transform
+        self.rate_hz = self.declare_parameter("rate_hz", 20.0).value # the rate at which to publish the transform
         self.create_timer(1.0/self.rate_hz, self.update)
 
+
+        self.provide_odom_tf = self.declare_parameter('provide_odom_tf', True).value  # whether to provide the tf or not
+        
         self.ticks_meter = float(
             self.declare_parameter('ticks_meter', Specs.TicksPerMeter).value)  # The number of wheel encoder ticks per meter of travel
         self.base_width = float(self.declare_parameter('base_width', Specs.WheelDistanceInM).value)  # The wheel base width in meters
 
         self.base_frame_id = self.declare_parameter('base_frame_id',
-                                                    'base_footprint').value  # the name of the base frame of the robot
+                                                    'base_link').value  # the name of the base frame of the robot
         self.odom_frame_id = self.declare_parameter('odom_frame_id',
                                                     'odom').value  # the name of the odometry reference frame
 
@@ -129,8 +132,8 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
 
         transform_stamped_msg = TransformStamped()
         transform_stamped_msg.header.stamp = self.get_clock().now().to_msg()
-        transform_stamped_msg.header.frame_id = self.base_frame_id
-        transform_stamped_msg.child_frame_id = self.odom_frame_id
+        transform_stamped_msg.header.frame_id = self.odom_frame_id
+        transform_stamped_msg.child_frame_id = self.base_frame_id
         transform_stamped_msg.transform.translation.x = self.x
         transform_stamped_msg.transform.translation.y = self.y
         transform_stamped_msg.transform.translation.z = 0.0
@@ -139,7 +142,8 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         transform_stamped_msg.transform.rotation.z = quaternion.z
         transform_stamped_msg.transform.rotation.w = quaternion.w
 
-        self.odom_broadcaster.sendTransform(transform_stamped_msg)
+        if self.provide_odom_tf:
+            self.odom_broadcaster.sendTransform(transform_stamped_msg)
 
         odom = Odometry()
         odom.header.stamp = now.to_msg()
