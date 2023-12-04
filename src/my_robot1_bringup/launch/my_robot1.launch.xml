@@ -18,10 +18,12 @@
     </node>
 
 
-    <node pkg="cartographer_ros" exec="cartographer_node" name="cartographer_node" output="screen"
-        args="-configuration_directory $(var cartographer_config_dir) -configuration_basename $(var cartographer_config_basename)" />
+    <node pkg="my_robot1" exec="roomba_telemetry_node" name="roomba_telemetry_node" output="screen" />
 
-    <node pkg="cartographer_ros" exec="cartographer_occupancy_grid_node"
-        name="cartographer_occupancy_grid_node" output="screen" />
+    <node pkg="my_robot1" exec="lidar_driver" name="lidar_driver_node" output="screen"
+        args="--ros-args -p ip:=192.168.0.115 -p port:=23" />
+
+    <node pkg="my_robot1" exec="drive_node" name="drive_node" output="screen" />
+
 
 </launch>
