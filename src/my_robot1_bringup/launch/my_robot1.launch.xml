@@ -21,7 +21,7 @@
     <node pkg="my_robot1" exec="roomba_telemetry_node" name="roomba_telemetry_node" output="screen" />
 
     <node pkg="my_robot1" exec="lidar_driver" name="lidar_driver_node" output="screen"
-        args="--ros-args -p ip:=192.168.0.115 -p port:=23" />
+        args="--ros-args -p ip:=192.168.8.200 -p port:=23" />
 
     <node pkg="my_robot1" exec="drive_node" name="drive_node" output="screen" />
 

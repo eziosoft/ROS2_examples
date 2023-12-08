@@ -39,7 +39,7 @@ class LidarClient:
             host_ip = socket.gethostbyname(self.IP)
         except socket.gaierror:
             print("There was an error resolving the host")
-            sys.exit()
+            exit()
         return host_ip
 
     def connect_to_server(self):
