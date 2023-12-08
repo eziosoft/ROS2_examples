@@ -42,7 +42,7 @@ class LidarNode(Node):  # MODIFY NAME
             return
 
         for i in range(len(lidarOutput.distances)):
-            if lidarOutput.angles[i] < self.last_angle and lidarOutput.angles[i] in range(0, 22):
+            if lidarOutput.angles[i] < self.last_angle and len(self.mesurements) > 0:
                 scan_time = 1/lidarOutput.speed_rev_s
                 time_increment = scan_time/len(self.mesurements)
 
