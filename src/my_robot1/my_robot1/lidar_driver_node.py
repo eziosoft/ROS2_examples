@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import math
-import random
-import time
 import rclpy
 from rclpy.node import Node
 from rclpy.time import Time
@@ -45,14 +43,13 @@ class LidarNode(Node):  # MODIFY NAME
 
         for i in range(len(lidarOutput.distances)):
             if lidarOutput.angles[i] < self.last_angle and lidarOutput.angles[i] in range(0, 22):
-
-                time = self.get_clock().now()
                 scan_time = 1/lidarOutput.speed_rev_s
                 time_increment = scan_time/len(self.mesurements)
-                self.publish(angle_min=self.angles[0],
-                             angle_max=self.angles[-1],
+
+                self.publish(angle_min=0,#self.angles[0],
+                             angle_max=360,#self.angles[-1],
                              angle_increment=self.angles[1]-self.angles[0],
-                             ranges=self.mesurements[::-1],
+                             ranges=self.mesurements,
                              scan_time=scan_time,
                              time_increment=time_increment)
                 self.mesurements = []
@@ -71,8 +68,6 @@ class LidarNode(Node):  # MODIFY NAME
         msg.angle_min = math.radians(angle_min)
         msg.angle_max = math.radians(angle_max)
         msg.angle_increment = math.radians(angle_increment)
-
-        number_of_frames_per_revolution = 360 / 22.5
         msg.time_increment = time_increment
         msg.scan_time = scan_time
         msg.range_min = 0.1
