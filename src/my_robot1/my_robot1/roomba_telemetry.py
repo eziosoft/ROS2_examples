@@ -183,7 +183,9 @@ class Create2Driver:
 class OdonometryDriver:
     DATA_TOPIC = "tank/stream"
 
-    def __init__(self, broker: str, port: int) -> None:
+    def __init__(self, broker: str, port: int, on_state_callback=None) -> None:
+        self.on_state_callback = on_state_callback
+
         self.create2_driver = Create2Driver()
         self.state = None
         self.mqtt_client = mqtt.Client()
@@ -205,6 +207,8 @@ class OdonometryDriver:
         new_state = self.create2_driver.update(data)
         if new_state is not None:
             self.state = new_state
+            if self.on_state_callback is not None:
+                self.on_state_callback(self.state)
 
     def get_state(self):
         return self.state

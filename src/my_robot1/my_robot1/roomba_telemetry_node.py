@@ -22,17 +22,16 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
 
     def __init__(self):
         super().__init__('roomba_telemetry_node')  # MODIFY NAME
-        self.odom_driver = OdonometryDriver("192.168.8.103", 1883)
 
-        self.roomba_status_check_hz = 10.0
-        self.timer_update_callback = self.create_timer(
-            1.0/self.roomba_status_check_hz, self.timer_update_callback)
+        self.broker_ip = self.declare_parameter('broker_ip', '192.168.8.103').value
+        self.broker_port = self.declare_parameter('broker_port', 1883).value
+        self.odom_driver = OdonometryDriver(self.broker_ip, self.broker_port, self.on_data_callback)
+
+        # self.roomba_status_check_hz = 10.0
+        # self.timer_update_callback = self.create_timer(
+        #     1.0/self.roomba_status_check_hz, self.timer_update_callback)
 
         ### parameters #######
-        # the rate at which to publish the transform
-        self.rate_hz = self.declare_parameter("rate_hz", 10.0).value
-        self.create_timer(1.0/self.rate_hz, self.update)
-
         self.provide_odom_tf = self.declare_parameter(
             'provide_odom_tf', True).value  # whether to provide the tf or not
 
@@ -85,7 +84,27 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.left = 0
         self.right = 0
 
+        self.update()
+
+    def on_data_callback(self,state):
+        # self.get_logger().info("on_data_callback")
+        # self.get_logger().info("Timer update callback")
+        # state = self.odom_driver.get_state()
+        if (
+            state is not None
+            and hasattr(state, "leftEncoderCounts")
+            and hasattr(state, "rightEncoderCounts")
+        ):
+            left = state.leftEncoderCounts
+            right = state.rightEncoderCounts
+            if left != self.left or right != self.right:
+                self.left = left
+                self.right = right
+                self.calculate_odonometry()
+                self.update()
+
     def update(self):
+        self.get_logger().info(f"left: {self.left}, right: {self.right}")
         now = self.get_clock().now()
         elapsed = now - self.then
         self.then = now
@@ -176,23 +195,10 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
                             (self.encoder_max - self.encoder_min))
         self.prev_rencoder = enc
 
-    def timer_update_callback(self):
-        # self.get_logger().info("Timer update callback")
-        state = self.odom_driver.get_state()
-        if (
-            state is not None
-            and hasattr(state, "leftEncoderCounts")
-            and hasattr(state, "rightEncoderCounts")
-        ):
-            left = state.leftEncoderCounts
-            right = state.rightEncoderCounts
-            if left != self.left or right != self.right:
-                self.left = left
-                self.right = right
-                self.calculate_odonometry()
+   
 
     def calculate_odonometry(self):
-        self.get_logger().info("Left: %d, Right: %d" % (self.left, self.right))
+        # self.get_logger().info("Left: %d, Right: %d" % (self.left, self.right))
         self.lwheel_callback(self.left)
         self.rwheel_callback(self.right)
 
