@@ -28,18 +28,18 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.timer_update_callback = self.create_timer(
             1.0/self.roomba_status_check_hz, self.timer_update_callback)
 
-
-
         ### parameters #######
-        self.rate_hz = self.declare_parameter("rate_hz", 20.0).value # the rate at which to publish the transform
+        # the rate at which to publish the transform
+        self.rate_hz = self.declare_parameter("rate_hz", 10.0).value
         self.create_timer(1.0/self.rate_hz, self.update)
 
+        self.provide_odom_tf = self.declare_parameter(
+            'provide_odom_tf', True).value  # whether to provide the tf or not
 
-        self.provide_odom_tf = self.declare_parameter('provide_odom_tf', True).value  # whether to provide the tf or not
-        
         self.ticks_meter = float(
             self.declare_parameter('ticks_meter', Specs.TicksPerMeter).value)  # The number of wheel encoder ticks per meter of travel
-        self.base_width = float(self.declare_parameter('base_width', Specs.WheelDistanceInM).value)  # The wheel base width in meters
+        self.base_width = float(self.declare_parameter(
+            'base_width', Specs.WheelDistanceInM).value)  # The wheel base width in meters
 
         self.base_frame_id = self.declare_parameter('base_frame_id',
                                                     'base_link').value  # the name of the base frame of the robot
@@ -49,9 +49,9 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.encoder_min = self.declare_parameter('encoder_min', -32768).value
         self.encoder_max = self.declare_parameter('encoder_max', 32768).value
         self.encoder_low_wrap = self.declare_parameter('wheel_low_wrap', (
-                self.encoder_max - self.encoder_min) * 0.3 + self.encoder_min).value
+            self.encoder_max - self.encoder_min) * 0.3 + self.encoder_min).value
         self.encoder_high_wrap = self.declare_parameter('wheel_high_wrap', (
-                self.encoder_max - self.encoder_min) * 0.7 + self.encoder_min).value
+            self.encoder_max - self.encoder_min) * 0.7 + self.encoder_min).value
 
         # internal data
         self.enc_left = None  # wheel encoder readings
@@ -69,9 +69,6 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.dr = 0.0
         self.then = self.get_clock().now()
 
-        # subscriptions
-        # self.create_subscription(Int16, "lwheel", self.lwheel_callback, 10)
-        # self.create_subscription(Int16, "rwheel", self.rwheel_callback, 10)
         self.odom_pub = self.create_publisher(Odometry, "odom", 10)
         self.odom_broadcaster = TransformBroadcaster(self)
 
@@ -87,7 +84,6 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.get_logger().info("Roomba Telemetry Node has been started")
         self.left = 0
         self.right = 0
-
 
     def update(self):
         now = self.get_clock().now()
@@ -105,7 +101,7 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.enc_left = self.left
         self.enc_right = self.right
 
-        # distance traveled is the average of the two wheels 
+        # distance traveled is the average of the two wheels
         d = (d_left + d_right) / 2
         # this approximation works (in radians) for small angles
         th = (d_right - d_left) / self.base_width
@@ -165,7 +161,8 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         if enc > self.encoder_high_wrap and self.prev_lencoder < self.encoder_low_wrap:
             self.lmult = self.lmult - 1
 
-        self.left = 1.0 * (enc + self.lmult * (self.encoder_max - self.encoder_min))
+        self.left = 1.0 * (enc + self.lmult *
+                           (self.encoder_max - self.encoder_min))
         self.prev_lencoder = enc
 
     def rwheel_callback(self, enc):
@@ -175,31 +172,9 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         if enc > self.encoder_high_wrap and self.prev_rencoder < self.encoder_low_wrap:
             self.rmult = self.rmult - 1
 
-        self.right = 1.0 * (enc + self.rmult * (self.encoder_max - self.encoder_min))
+        self.right = 1.0 * (enc + self.rmult *
+                            (self.encoder_max - self.encoder_min))
         self.prev_rencoder = enc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def timer_update_callback(self):
         # self.get_logger().info("Timer update callback")
@@ -215,16 +190,6 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
                 self.left = left
                 self.right = right
                 self.calculate_odonometry()
-
-        # if self.left > 32768:
-        #     self.left = -32768
-
-        # if self.right > 32768:
-        #     self.right = -32768
-            
-        # self.left+=10
-        # self.right-=10
-        # self.calculate_odonometry()
 
     def calculate_odonometry(self):
         self.get_logger().info("Left: %d, Right: %d" % (self.left, self.right))
