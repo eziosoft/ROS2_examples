@@ -2,15 +2,6 @@
     <let name="urdf_path"
         value="$(find-pkg-share my_robot1_description)/urdf/my_robot1.urdf" />
 
-    <let name="rviz_config_path"
-        value="$(find-pkg-share my_robot1_description)/rviz/rviz.rviz" />
-
-    <let name="cartographer_config_dir"
-        value="$(find-pkg-share my_robot1_bringup)/config" />
-
-    <let name="cartographer_config_basename"
-        value="slam_2d.lua" />
-
 
     <node pkg="robot_state_publisher" exec="robot_state_publisher">
         <param name="robot_description"
@@ -18,10 +9,11 @@
     </node>
 
 
-    <node pkg="my_robot1" exec="roomba_telemetry_node" name="roomba_telemetry_node" output="screen" />
+    <node pkg="my_robot1" exec="roomba_telemetry_node" name="roomba_telemetry_node" output="screen"
+    args="--ros-args -p provide_odom_tf:=True" />
 
     <node pkg="my_robot1" exec="lidar_driver" name="lidar_driver_node" output="screen"
-        args="--ros-args -p ip:=192.168.8.200 -p port:=23" />
+        args="--ros-args -p ip:=192.168.0.113 -p port:=23" />
 
     <node pkg="my_robot1" exec="drive_node" name="drive_node" output="screen" />
 
