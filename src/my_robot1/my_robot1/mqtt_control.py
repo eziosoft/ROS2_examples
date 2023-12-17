@@ -9,6 +9,7 @@ class MqttControl:
 
     COMMAND_START = 102
     COMMAND_STOP = 101
+    COMMAND_START_STREAM = 120
 
     def __init__(self, host, port):
 
@@ -31,6 +32,7 @@ class MqttControl:
 
     def enable_roomba(self):
         self.sendControl(self.CENTER, self.CENTER, self.COMMAND_START)
+        self.sendControl(self.CENTER, self.CENTER, self.COMMAND_START_STREAM)
 
     def disable_roomba(self):
         self.sendControl(self.CENTER, self.CENTER, self.COMMAND_STOP)
