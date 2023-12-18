@@ -27,9 +27,9 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
         self.broker_port = self.declare_parameter('broker_port', 1883).value
         self.odom_driver = OdonometryDriver(self.broker_ip, self.broker_port, self.on_data_callback)
 
-        # self.roomba_status_check_hz = 10.0
-        # self.timer_update_callback = self.create_timer(
-        #     1.0/self.roomba_status_check_hz, self.timer_update_callback)
+        self.roomba_status_check_hz = 10.0
+        self.timer_update_callback = self.create_timer(
+            1.0/self.roomba_status_check_hz, self.update)
 
         ### parameters #######
         self.provide_odom_tf = self.declare_parameter(
@@ -41,7 +41,7 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
             'base_width', Specs.WheelDistanceInM).value)  # The wheel base width in meters
 
         self.base_frame_id = self.declare_parameter('base_frame_id',
-                                                    'base_link').value  # the name of the base frame of the robot
+                                                    'base_footprint').value  # the name of the base frame of the robot
         self.odom_frame_id = self.declare_parameter('odom_frame_id',
                                                     'odom').value  # the name of the odometry reference frame
 
@@ -104,7 +104,7 @@ class RoombaTelemetryNode(Node):  # MODIFY NAME
                 self.update()
 
     def update(self):
-        self.get_logger().info(f"left: {self.left}, right: {self.right}")
+        # self.get_logger().info(f"left: {self.left}, right: {self.right}")
         now = self.get_clock().now()
         elapsed = now - self.then
         self.then = now

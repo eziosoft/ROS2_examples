@@ -38,8 +38,8 @@ class DriveNode(Node):  # MODIFY NAME
         time.sleep(1)
 
     def drive_callback(self, msg):
-        self.get_logger().info("I heard: [%s]" % msg.linear.x)
-        self.get_logger().info("I heard: [%s]" % msg.angular.z)
+        self.get_logger().info("I heard x: [%s]" % msg.linear.x)
+        self.get_logger().info("I heard z: [%s]" % msg.angular.z)
 
         x = int(msg.linear.x * 100 + 100)
         z = int(msg.angular.z * 20 + 100)
